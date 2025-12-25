@@ -107,6 +107,24 @@ const marketShareObserver = new IntersectionObserver(
 // Observe the chart canvas
 marketShareObserver.observe(marketBarCanvas);
 
+const revenueChartObserver = new IntersectionObserver(
+    entries => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                initRevenueScenarioChart();
+            }
+        });
+    },
+    {
+        threshold: 0.4
+    }
+);
+
+const revenueChartSection = document.querySelector('#financials');
+if (revenueChartSection) {
+    revenueChartObserver.observe(revenueChartSection);
+}
+
 /* ========= GLOBAL AUTO INDUSTRY PIE ========= */
 
 const globalPie = document.getElementById('globalAutoPie');
@@ -375,72 +393,65 @@ function renderPLTable(scenario) {
     `;
 }
 
-const ctx = document.getElementById('revenueScenarioChart');
+let revenueChartInitialized = false;
 
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: ['FY26E','FY27E','FY28E','FY29E','FY30E'],
-        datasets: [
-            {
-                label: 'Base',
-                data: financialData.base.revenue,
-                borderColor: '#4da3ff',
-                tension: 0.4
-            },
-            {
-                label: 'Bull',
-                data: financialData.bull.revenue,
-                borderColor: '#22c55e',
-                tension: 0.4
-            },
-            {
-                label: 'Bear',
-                data: financialData.bear.revenue,
-                borderColor: '#f97316',
-                tension: 0.4
-            }
-        ]
-    },
-    options: {
-        plugins: {
-            legend: { labels: { color: '#cfd6e4' } }
+function initRevenueScenarioChart() {
+    if (revenueChartInitialized) return;
+
+    const ctx = document.getElementById('revenueScenarioChart');
+    if (!ctx) return;
+
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: ['FY26E','FY27E','FY28E','FY29E','FY30E'],
+            datasets: [
+                {
+                    label: 'Base',
+                    data: financialData.base.revenue,
+                    borderColor: '#4da3ff',
+                    tension: 0.4
+                },
+                {
+                    label: 'Bull',
+                    data: financialData.bull.revenue,
+                    borderColor: '#22c55e',
+                    tension: 0.4
+                },
+                {
+                    label: 'Bear',
+                    data: financialData.bear.revenue,
+                    borderColor: '#f97316',
+                    tension: 0.4
+                }
+            ]
         },
-        scales: {
-            y: {
-                ticks: {
-                    callback: v => (v/100000).toFixed(1) + 'L',
-                    color: '#9aa4b2'
+        options: {
+            animation: {
+                duration: 900,
+                easing: 'easeOutQuart'
+            },
+            plugins: {
+                legend: {
+                    labels: { color: '#cfd6e4' }
                 }
             },
-            x: { ticks: { color: '#9aa4b2' } }
+            scales: {
+                y: {
+                    ticks: {
+                        callback: v => (v / 100000).toFixed(1) + 'L',
+                        color: '#9aa4b2'
+                    }
+                },
+                x: {
+                    ticks: { color: '#9aa4b2' }
+                }
+            }
         }
-    }
-});
+    });
 
-const valuationData = {
-    base: {
-        autoValue: 3342.37,
-        subValue: 470.20,
-        targetPrice: 3812.57,
-        cmp: 3608.00,
-        rating: 'Hold'
-    },
-    bull: {
-        autoValue: 4054.19,
-        subValue: 470.20,
-        targetPrice: 4524.39,
-        cmp: 3608.00,
-        rating: 'Buy'
-    },
-    bear: {
-        autoValue: 2336.78,
-        subValue: 470.20,
-        targetPrice: 2806.98,
-        cmp: 3608.00,
-        rating: 'Sell'
-    }
-};
+    revenueChartInitialized = true;
+}
 
 function renderValuation(scenario) {
     const d = valuationData[scenario];
