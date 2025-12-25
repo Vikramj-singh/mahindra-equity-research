@@ -107,23 +107,25 @@ const marketShareObserver = new IntersectionObserver(
 // Observe the chart canvas
 marketShareObserver.observe(marketBarCanvas);
 
-const revenueChartObserver = new IntersectionObserver(
-    entries => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                initRevenueScenarioChart();
-            }
-        });
-    },
-    {
-        threshold: 0.4
-    }
-);
+document.addEventListener('DOMContentLoaded', () => {
 
-const revenueChartSection = document.querySelector('#financials');
-if (revenueChartSection) {
-    revenueChartObserver.observe(revenueChartSection);
-}
+    const revenueChartObserver = new IntersectionObserver(
+        entries => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    initRevenueScenarioChart();
+                }
+            });
+        },
+        { threshold: 0.4 }
+    );
+
+    const revenueChartCanvas = document.getElementById('revenueScenarioChart');
+    if (revenueChartCanvas) {
+        revenueChartObserver.observe(revenueChartCanvas);
+    }
+
+});
 
 /* ========= GLOBAL AUTO INDUSTRY PIE ========= */
 
@@ -398,7 +400,10 @@ let revenueChartInitialized = false;
 function initRevenueScenarioChart() {
     if (revenueChartInitialized) return;
 
-    const ctx = document.getElementById('revenueScenarioChart');
+    const canvas = document.getElementById('revenueScenarioChart');
+    if (!canvas) return;   // ⬅ critical safety check
+
+    const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
     new Chart(ctx, {
